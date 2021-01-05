@@ -1,38 +1,71 @@
 import React, { Component } from 'react'
+import './main.css'
 
 export class Master extends Component {
     constructor(props) {
         super(props)
         this.state = {
           currentStep: 1,
-          selectedFile : null
-          //email:  '',
-          //username: '',
-          //password: '', 
+          selectedFile : null, //intially no file is selected
+          condition : ''
         }
       }
-    
+      
+      //on file select(from the pop up)
       handleChange = event => {
-        // const {name, value} = event.target
-        // this.setState({
-        //   [name]: value
-        //})
-        this.setState({selectedFile: event.target.files[0]})    
-      }
+        this.setState({selectedFile: event.target.files[0]})  //update the state  
+      };
+
+      handleChange2 = event => {
+      const {name, value} = event.target
+      this.setState({
+        [name]: value
+      })
+    }
     
+     // On file upload (click the upload button) 
+    onFileUpload = () => { 
+      // Create an object of formData 
+      const formData = new FormData(); 
+      // Update the formData object 
+      formData.append( 
+        "myFile", 
+        this.state.selectedFile, 
+        this.state.selectedFile.name 
+      ); 
+       // Details of the uploaded file 
+       console.log(this.state.selectedFile); 
+    };
+
+    // File content to be displayed after 
+    // file upload is complete 
+    fileData = () => { 
+      if (this.state.selectedFile) {  
+        return ( 
+          <div> 
+            <h2>File Details:</h2> 
+            <p>File Name: {this.state.selectedFile.name}</p> 
+            <p>File Type: {this.state.selectedFile.type}</p> 
+            <p> 
+              Last Modified:{" "} 
+              {this.state.selectedFile.lastModifiedDate.toDateString()} 
+            </p> 
+          </div> 
+        ); 
+      } 
+    }; 
       //Submit Event
-    //   handleSubmit = event => {
-    //     event.preventDefault()
-    //     const { email, username, password } = this.state
-    //     alert(`Your registration detail: \n 
-    //            Email: ${email} \n 
-    //            Username: ${username} \n
-    //            Password: ${password}`)
-    //   }
+       handleSubmit = event => {
+         event.preventDefault()
+         const { selectedFile, condition} = this.state
+         alert(`Your submit details: \n 
+               File: ${selectedFile} \n 
+                Terms: ${condition} \n`)
+       }
       
       _next = () => {
         let currentStep = this.state.currentStep
-        currentStep = currentStep >= 2 ? 3: currentStep + 1
+        currentStep = currentStep >= 1 ? 2: currentStep + 1
         this.setState({
           currentStep: currentStep
         })
@@ -54,7 +87,7 @@ export class Master extends Component {
       if(currentStep !==1){
         return (
           <button 
-            className="btn btn-secondary" 
+            className="input-button-trigger" 
             type="button" onClick={this._prev}>
           Previous
           </button>
@@ -65,10 +98,10 @@ export class Master extends Component {
     
     nextButton(){
       let currentStep = this.state.currentStep;
-      if(currentStep <3){
+      if(currentStep <2){
         return (
           <button 
-            className="btn btn-primary float-right" 
+            className="input-button-trigger" 
             type="button" onClick={this._next}>
           Next
           </button>        
@@ -90,18 +123,15 @@ export class Master extends Component {
         <Step1 
           currentStep={this.state.currentStep} 
           handleChange={this.handleChange}
-          email={this.state.email}
+          selectedFile={this.state.selectedFile}
+          fileData= {this.fileData}
         />
         <Step2 
           currentStep={this.state.currentStep} 
-          handleChange={this.handleChange}
-          username={this.state.username}
+          handleChange={this.handleChange2}
+          condition={this.state.condition}
         />
-        <Step3 
-          currentStep={this.state.currentStep} 
-          handleChange={this.handleChange}
-          password={this.state.password}
-        />
+
         {this.previousButton()}
         {this.nextButton()}
 
@@ -117,16 +147,18 @@ function Step1(props) {
   } 
   return(
     <div className="form-group">
-      <label htmlFor="email">Email address</label>
-      <input
-        className="form-control"
-        id="email"
-        name="email"
-        type="text"
-        placeholder="Enter email"
-        value={props.email}
-        onChange={props.handleChange}
-        />
+      <label htmlFor="selectedFile">File Upload</label>
+      <input 
+        className="input-file-trigger"
+        id="selectedFile"
+        name="selectedFile"
+        type="file" 
+        placeholder="Upload File"
+        onChange={props.handleChange} /> 
+      {/* <button onClick={this.onFileUpload}> 
+        File Upload! 
+      </button> */}
+       {props.fileData()}  
     </div>
   );
 }
@@ -136,43 +168,25 @@ function Step2(props) {
     return null
   } 
   return(
+    <React.Fragment>
     <div className="form-group">
-      <label htmlFor="username">Username</label>
+      <label htmlFor="condition">Terms and Condition</label>
       <input
         className="form-control"
-        id="username"
-        name="username"
-        type="text"
-        placeholder="Enter username"
-        value={props.username}
+        id="condition"
+        name="condition"
+        type="checkbox"
+        checked={props.condition}
         onChange={props.handleChange}
         />
+        <p>I accept the terms and conditions of uploading this video</p>
     </div>
+          <button className="input-upload-trigger">Upload</button>
+
+    </React.Fragment>
   );
 }
 
-function Step3(props) {
-  if (props.currentStep !== 3) {
-    return null
-  } 
-  return(
-    <React.Fragment>
-    <div className="form-group">
-      <label htmlFor="password">Password</label>
-      <input
-        className="form-control"
-        id="password"
-        name="password"
-        type="password"
-        placeholder="Enter password"
-        value={props.password}
-        onChange={props.handleChange}
-        />      
-    </div>
-    <button className="btn btn-success btn-block">Sign up</button>
-            </React.Fragment>
-        )
-    }
 
 
 export default Master
